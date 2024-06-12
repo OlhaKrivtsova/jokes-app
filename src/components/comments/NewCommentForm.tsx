@@ -1,24 +1,35 @@
 import styles from './NewCommentForm.module.css';
-import {useRef} from 'react';
+import {useRef, useEffect} from 'react';
+import useHttp from '../../hooks/use-http';
+import {addComment} from '../../utils/firebase-api';
 
 interface NewCommentFormProps {
   jokeId: string;
   onAddComment(): void;
 }
 
-const NewCommentForm = (props: NewCommentFormProps) => {
+const NewCommentForm = ({jokeId, onAddComment}: NewCommentFormProps) => {
   const commentTextRef = useRef<HTMLTextAreaElement>(null);
+
+  const {sendHttpRequest, status, error} = useHttp(addComment);
+
+  useEffect(() => {
+    if (status === 'completed' && !error) {
+      onAddComment();
+    }
+  }, [status, error, onAddComment]);
 
   const submitFormHandler = (event: React.FormEvent) => {
     event.preventDefault();
     const commentText = commentTextRef.current?.value;
-    console.log(props.jokeId, commentText);
-    props.onAddComment();
-
-    // sendHttpRequest({
-    //   jokeId: props.jokeId,
-    //   commentData: {text: commentText},
-    // });
+    if (commentText?.trim()[0]) {
+      sendHttpRequest({
+        jokeId: jokeId,
+        commentData: {text: commentText},
+      });
+    } else {
+      onAddComment();
+    }
   };
 
   return (

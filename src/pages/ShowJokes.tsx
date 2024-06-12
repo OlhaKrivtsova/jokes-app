@@ -1,53 +1,44 @@
 import JokeList from '../components/jokes/JokeList';
-
-// interface ShowJokesProps {
-//   children?: React.ReactNode;
-// }
-
-const DUMMY_JOKES = [
-  {
-    id: 'j1',
-    topic: 'Actors',
-    text: 'Why do we tell actors to "break a leg?" Because every play has a cast.',
-  },
-  {
-    id: 'j2',
-    topic: 'General',
-    text: `I was going to tell a time traveling joke, but you guys didn't like it.
-    `,
-  },
-];
+import useHttp from '../hooks/use-http';
+import {getJokes} from '../utils/firebase-api';
+import {useEffect} from 'react';
+import NoJokesFound from '../components/jokes/NoJokesFound';
+import {IJoke} from '../utils/firebase-api';
 
 const ShowJokes = () => {
-  // if (!jokes[0]) {
-  //   return <NoJokesFound />;
-  // }
+  const {
+    sendHttpRequest,
+    data: jokes,
+    status,
+    error,
+  } = useHttp<IJoke[]>(getJokes, true);
 
-  return <JokeList jokes={DUMMY_JOKES} />;
+  useEffect(() => {
+    sendHttpRequest();
+  }, [sendHttpRequest]);
 
-  // const linkList = DUMMY_JOKES.map(item => (
-  //   <li key={item.id}>
-  //     <Link to={`${item.id}`}>{item.name}</Link>
-  //   </li>
-  // ));
+  if (status === 'pending') {
+    return (
+      <div className='centered'>
+        <p className='focused'>Loading...</p>
+        {/* <Loader /> */}
+      </div>
+    );
+  }
 
-  // return (
-  //   <>
-  //     <Routes>
-  //       <Route
-  //         index
-  //         element={
-  //           <>
-  //             <div className='centered'>Joke's list</div>
-  //             <ul>{linkList}</ul>
-  //           </>
-  //         }
-  //       />
+  if (error || !jokes) {
+    return (
+      <div className='centered'>
+        <p className='focused'>{error}</p>
+      </div>
+    );
+  }
 
-  //       <Route path=':id' element={<JokeDetails />} />
-  //     </Routes>
-  //   </>
-  // );
+  if (!jokes[0]) {
+    return <NoJokesFound />;
+  }
+
+  return <JokeList jokes={jokes} />;
 };
 
 export default ShowJokes;

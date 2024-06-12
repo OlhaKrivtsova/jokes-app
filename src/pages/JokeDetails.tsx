@@ -2,85 +2,69 @@ import {useParams, Routes, Route, Link} from 'react-router-dom';
 import HighlightedJoke from '../components/jokes/HighlightedJoke';
 import NoJokesFound from '../components/jokes/NoJokesFound';
 import Comments from '../components/comments/Comments';
-// import styles from './JokeDetails.module.css';
-
-import {Joke} from '../components/jokes/JokeList';
-
-const DUMMY_JOKES: Joke[] = [
-  {
-    id: 'j1',
-    topic: 'Actors',
-    text: 'Why do we tell actors to "break a leg?" Because every play has a cast.',
-  },
-  {
-    id: 'j2',
-    topic: 'General',
-    text: `I was going to tell a time traveling joke, but you guys didn't like it.
-    `,
-  },
-];
-
-// type JokeDetailsProps = {
-//   children?: React.ReactNode;
-// };
+import useHttp from '../hooks/use-http';
+import {getJoke} from '../utils/firebase-api';
+import {useEffect} from 'react';
+import {IJoke} from '../utils/firebase-api';
 
 type JokeDetailsParams = {
   id: string;
 };
 
 const JokeDetails = () => {
-  const params = useParams<JokeDetailsParams>();
-  const joke = DUMMY_JOKES.find(item => item.id === params.id);
+  const {id} = useParams<JokeDetailsParams>();
+  const {
+    sendHttpRequest,
+    status,
+    data: joke,
+    error,
+  } = useHttp<IJoke>(getJoke, true);
+
+  useEffect(() => {
+    sendHttpRequest(id);
+  }, [sendHttpRequest, id]);
+
+  if (status === 'pending') {
+    return (
+      <div className='centered'>
+        <p className='focused'>Loading...</p>
+        {/* <Loader /> */}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='centered'>
+        <p className='focused'>{error}</p>
+      </div>
+    );
+  }
 
   if (!joke) return <NoJokesFound />;
-  if (!params.id) return <p className='centered'>No comments.</p>;
+  if (!id) return <p className='centered'>No comments.</p>;
 
   return (
     <>
-      <Routes>
-        <Route
-          index
-          element={
-            <>
-              {' '}
-              <HighlightedJoke {...joke} />
-              <div className='centered'>
-                <Link className='btn' to='comments'>
-                  Comments
-                </Link>
-              </div>
-            </>
-          }
-        />
+      <HighlightedJoke {...joke} />
+      <div className='centered'>
+        <Link className='btn' to='comments'>
+          Comments
+        </Link>
+      </div>
 
+      <Routes>
         <Route
           path='comments'
           element={
             <>
-              <Link to='../'>return to the joke</Link>
-              <Comments jokeId={params.id} />{' '}
+              {/* <Link to='../'>return to the joke</Link> */}
+              <Comments jokeId={id} />
             </>
           }
         />
       </Routes>
     </>
-
-    // <>
-    //   <Route path={url} exact>
-    //     <HighlightedJoke {...joke} />
-    //     {/* </Route>
-    //   <Route path={url} exact> */}
-    //     <div className='centered'>
-    //       <Link className='btn' to={`${url}/comments`}>
-    //         Comments
-    //       </Link>
-    //     </div>
-    //   </Route>
-    //   <Route path={`${url}/comments`}>
-    //     <Link to={url}>return to the joke</Link>
-    //     <Comments jokeId={jokeId} />
-    //   </Route>
-    // </>
   );
 };
 

@@ -1,9 +1,9 @@
 import styles from './CommentList.module.css';
-import {Comment} from './Comments';
 import CommentItem from './CommentItem';
+import {IComment} from '../../utils/firebase-api';
 
 interface CommentListProps {
-  comments: Comment[];
+  comments: IComment[];
 }
 
 const CommentList = (props: CommentListProps) => {

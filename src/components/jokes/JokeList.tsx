@@ -1,20 +1,15 @@
 import styles from './JokeList.module.css';
 import JokeItem from './JokeItem';
 import {useSearchParams} from 'react-router-dom';
-
-export interface Joke {
-  id: string;
-  topic: string;
-  text: string;
-}
+import {IJoke} from '../../utils/firebase-api';
 
 interface JokeListProps {
-  jokes: Joke[];
+  jokes: IJoke[];
 }
 
 // type JokeListParams = [['sort', 'acs'], ['sort', 'desc']];
 
-const sort = (jokes: Joke[], isAscending: boolean): Joke[] => {
+const sort = (jokes: IJoke[], isAscending: boolean): IJoke[] => {
   return jokes.sort((joke1, joke2) => {
     if (isAscending) {
       return joke1.id > joke2.id ? 1 : -1;

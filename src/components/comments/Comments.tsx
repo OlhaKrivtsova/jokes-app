@@ -1,12 +1,9 @@
 import styles from './Comments.module.css';
 import CommentList from './CommentList';
-import {useState, useCallback} from 'react';
+import {useState, useCallback, useEffect} from 'react';
 import NewCommentForm from './NewCommentForm';
-
-export interface Comment {
-  id: string;
-  text: string;
-}
+import useHttp from '../../hooks/use-http';
+import {getComments, IComment} from '../../utils/firebase-api';
 
 interface CommentsProps {
   jokeId: string;
@@ -15,7 +12,16 @@ interface CommentsProps {
 const Comments = (props: CommentsProps) => {
   const [isAddingComment, setIsAddingComment] = useState(false);
 
-  const comments: Comment[] = [];
+  const {
+    sendHttpRequest,
+    status,
+    data: comments,
+    error,
+  } = useHttp<IComment[]>(getComments, true);
+
+  useEffect(() => {
+    sendHttpRequest(props.jokeId);
+  }, [sendHttpRequest, props.jokeId, isAddingComment]);
 
   const addCommentHandler = useCallback(() => {
     setIsAddingComment(false);
@@ -24,6 +30,22 @@ const Comments = (props: CommentsProps) => {
   const startAddCommentHandler = () => {
     setIsAddingComment(true);
   };
+
+  if (status === 'pending') {
+    return (
+      <div className='centered'>
+        <p className='focused'>Loading...</p>
+      </div>
+    );
+  }
+
+  if (error || !comments) {
+    return (
+      <div className='centered'>
+        <p className='focused'>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <section className={styles.comments}>

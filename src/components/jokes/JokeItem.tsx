@@ -1,8 +1,8 @@
 import styles from './JokeItem.module.css';
 import {Link} from 'react-router-dom';
-import {Joke} from './JokeList';
+import {IJoke} from '../../utils/firebase-api';
 
-interface JokeItemProps extends Joke {}
+interface JokeItemProps extends IJoke {}
 
 const JokeItem = ({id, topic, text}: JokeItemProps) => {
   return (

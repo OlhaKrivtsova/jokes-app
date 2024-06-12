@@ -1,6 +1,3 @@
-// import React, { FC } from 'react';
-// import './App.css';
-
 import {Navigate, Route, Routes} from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import AddJoke from './pages/AddJoke';

@@ -1,7 +1,7 @@
 import styles from './HighlightedJoke.module.css';
-import {Joke} from './JokeList';
+import {IJoke} from '../../utils/firebase-api';
 
-interface HighlightedJokeProps extends Joke {}
+interface HighlightedJokeProps extends IJoke {}
 
 const HighlightedJoke = (props: HighlightedJokeProps) => {
   return (
